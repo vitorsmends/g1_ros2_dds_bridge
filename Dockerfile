@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /opt/ws/src
 COPY . ./g1_ros2_dds_bridge
+RUN chmod +x /opt/ws/src/g1_ros2_dds_bridge/ros_entrypoint.sh
 
 WORKDIR /opt/ws
 RUN (rosdep init 2>/dev/null || true) && \
