@@ -6,11 +6,31 @@ ENV ROS_DISTRO=humble
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-colcon-common-extensions \
     python3-rosdep \
+    \
     python3-pip \
     git \
+    build-essential \
+    cmake \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --no-cache-dir unitree_sdk2py
+RUN git clone https://github.com/eclipse-cyclonedds/cyclonedds -b releases/0.10.x /lib/cyclonedds && \
+    mkdir -p /lib/cyclonedds/build /lib/cyclonedds/install && \
+    cd /lib/cyclonedds/build && \
+    cmake .. -DCMAKE_INSTALL_PREFIX=/lib/cyclonedds/install && \
+    cmake --build . --target install
+
+RUN git clone https://github.com/unitreerobotics/unitree_sdk2_python.git /lib/unitree_sdk2_python && \
+    touch /lib/unitree_sdk2_python/unitree_sdk2py/b2/__init__.py && \
+    touch /lib/unitree_sdk2_python/unitree_sdk2py/comm/__init__.py && \
+    touch /lib/unitree_sdk2_python/unitree_sdk2py/h1/__init__.py && \
+    mkdir -p /lib/unitree_sdk2_python/unitree_sdk2py/g1 && \
+    touch /lib/unitree_sdk2_python/unitree_sdk2py/g1/__init__.py && \
+    touch /lib/unitree_sdk2_python/unitree_sdk2py/g1/loco/__init__.py && \
+    touch /lib/unitree_sdk2_python/unitree_sdk2py/g1/arm/__init__.py && \
+    touch /lib/unitree_sdk2_python/unitree_sdk2py/g1/audio/__init__.py && \
+    cd /lib/unitree_sdk2_python && \
+    export CYCLONEDDS_HOME=/lib/cyclonedds/install && \
+    pip3 install --no-cache-dir .
 
 WORKDIR /opt/ws/src
 COPY . ./g1_ros2_dds_bridge
