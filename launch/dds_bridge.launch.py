@@ -6,7 +6,7 @@ def generate_launch_description():
     return LaunchDescription([
         Node(
             package="g1_ros2_dds_bridge",
-            executable="lowstate_to_dog_odom.py",
+            executable="lowstate_to_dog_odom",
             name="lowstate_to_dog_odom",
             output="screen",
             parameters=[{
@@ -19,7 +19,7 @@ def generate_launch_description():
         ),
         Node(
             package="g1_ros2_dds_bridge",
-            executable="livox_to_pointcloud2.py",
+            executable="livox_to_pointcloud2",
             name="livox_to_pointcloud2",
             output="screen",
             parameters=[{
