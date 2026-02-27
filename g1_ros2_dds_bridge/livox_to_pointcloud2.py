@@ -50,7 +50,7 @@ class LivoxToPointCloud2(Node):
         self.log_every_n = int(self.get_parameter("log_every_n").value)
 
         qos = QoSProfile(
-            reliability=ReliabilityPolicy.RELIABLE,
+            reliability=ReliabilityPolicy.BEST_EFFORT,
             history=HistoryPolicy.KEEP_LAST,
             depth=10,
         )
