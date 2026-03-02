@@ -27,7 +27,7 @@ def generate_launch_description():
                 "dds_domain_id": 0,
                 "dds_topic": "rt/utlidar/cloud_livox_mid360",
                 "ros_topic": "/livox/lidar",
-                "override_frame_id": "",
+                "override_frame_id": "world",
                 "use_sim_time": True,
             }],
         ),

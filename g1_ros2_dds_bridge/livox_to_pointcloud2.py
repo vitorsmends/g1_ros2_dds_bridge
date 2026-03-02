@@ -4,17 +4,9 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
 
 from sensor_msgs.msg import PointCloud2, PointField
-from builtin_interfaces.msg import Time as RosTime
 
 from unitree_sdk2py.core.channel import ChannelFactoryInitialize, ChannelSubscriber
 from unitree_sdk2py.idl.sensor_msgs.msg.dds_ import PointCloud2_ as DdsPointCloud2_
-
-
-def dds_time_to_ros(sec: int, nanosec: int) -> RosTime:
-    t = RosTime()
-    t.sec = int(sec)
-    t.nanosec = int(nanosec)
-    return t
 
 
 def dds_pf_to_ros_datatype(dds_datatype: int) -> int:
@@ -41,6 +33,7 @@ class LivoxToPointCloud2(Node):
         self.declare_parameter("override_frame_id", "")
         self.declare_parameter("dds_queue_depth", 32)
         self.declare_parameter("log_every_n", 30)
+        self.declare_parameter("use_sim_time", True)
 
         dds_domain_id = int(self.get_parameter("dds_domain_id").value)
         dds_topic = str(self.get_parameter("dds_topic").value)
@@ -68,8 +61,8 @@ class LivoxToPointCloud2(Node):
         self.all_inf_hint_count = 0
 
         self.get_logger().info(
-            f"Subscribed to DDS {dds_topic} (domain {dds_domain_id}), publishing {ros_topic} "
-            f"(dds_queue_depth={self.dds_queue_depth})"
+            f"Subscribed to DDS {dds_topic} (domain {dds_domain_id}), publishing {ros_topic}, "
+            f"use_sim_time={self.get_parameter('use_sim_time').value}, override_frame_id='{self.override_frame_id}'"
         )
 
     def _dds_cb(self, msg: DdsPointCloud2_):
@@ -111,11 +104,9 @@ class LivoxToPointCloud2(Node):
 
         has_xyz = {f.name for f in fields} >= {"x", "y", "z"}
         all_inf_hint = False
-        if actual_len >= 12:
-            head = data_bytes[:12]
-            if head == b"\x00\x00\x80\x7f" * 3:
-                all_inf_hint = True
-                self.all_inf_hint_count += 1
+        if actual_len >= 12 and data_bytes[:12] == b"\x00\x00\x80\x7f" * 3:
+            all_inf_hint = True
+            self.all_inf_hint_count += 1
 
         if self.log_every_n > 0 and (self.msg_count % self.log_every_n) == 0:
             self.get_logger().info(
@@ -137,8 +128,7 @@ class LivoxToPointCloud2(Node):
 
         if all_inf_hint:
             self.get_logger().warn(
-                "PointCloud2 payload appears to start with FLOAT32 +inf pattern (00 00 80 7F). "
-                "This usually indicates 'no-hit' rays are being published as inf."
+                "PointCloud2 payload appears to start with FLOAT32 +inf pattern (00 00 80 7F)."
             )
 
         self.pub.publish(cloud)
