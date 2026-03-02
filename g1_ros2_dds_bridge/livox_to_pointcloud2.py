@@ -76,7 +76,7 @@ class LivoxToPointCloud2(Node):
         self.msg_count += 1
 
         cloud = PointCloud2()
-        cloud.header.stamp = dds_time_to_ros(msg.header.stamp.sec, msg.header.stamp.nanosec)
+        cloud.header.stamp = self.get_clock().now().to_msg()
 
         fid = str(msg.header.frame_id)
         cloud.header.frame_id = self.override_frame_id if self.override_frame_id else fid

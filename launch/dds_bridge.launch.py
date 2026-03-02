@@ -15,6 +15,7 @@ def generate_launch_description():
                 "ros_topic": "/dog_odom",
                 "odom_frame": "odom",
                 "base_frame": "base_link",
+                "use_sim_time": True,
             }],
         ),
         Node(
@@ -27,6 +28,7 @@ def generate_launch_description():
                 "dds_topic": "rt/utlidar/cloud_livox_mid360",
                 "ros_topic": "/livox/lidar",
                 "override_frame_id": "",
+                "use_sim_time": True,
             }],
         ),
     ])
