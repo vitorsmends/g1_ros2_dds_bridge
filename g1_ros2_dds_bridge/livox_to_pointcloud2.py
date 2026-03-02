@@ -33,7 +33,6 @@ class LivoxToPointCloud2(Node):
         self.declare_parameter("override_frame_id", "")
         self.declare_parameter("dds_queue_depth", 32)
         self.declare_parameter("log_every_n", 30)
-        self.declare_parameter("use_sim_time", True)
 
         dds_domain_id = int(self.get_parameter("dds_domain_id").value)
         dds_topic = str(self.get_parameter("dds_topic").value)
@@ -62,7 +61,6 @@ class LivoxToPointCloud2(Node):
 
         self.get_logger().info(
             f"Subscribed to DDS {dds_topic} (domain {dds_domain_id}), publishing {ros_topic}, "
-            f"use_sim_time={self.get_parameter('use_sim_time').value}, override_frame_id='{self.override_frame_id}'"
         )
 
     def _dds_cb(self, msg: DdsPointCloud2_):
